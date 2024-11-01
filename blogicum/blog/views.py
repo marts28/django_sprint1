@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 # Create your views here.
@@ -45,6 +46,8 @@ posts = [
     },
 ]
 
+posts_dictionary = {post['id']: post for post in posts}
+
 
 def index(request):
     template = 'blog/index.html'
@@ -54,24 +57,22 @@ def index(request):
     return render(request, template, context)
 
 
-def post_detail(request, pk):
+def post_detail(request, post_id):
+
+    if post_id not in posts_dictionary.keys():
+        raise Http404(f'Пост с идентификатором {post_id} не существует')
+
     template = 'blog/detail.html'
     context = {
-        'post': posts[pk]
+        'post': posts_dictionary[post_id]
     }
     return render(request, template, context)
 
 
 def category_posts(request, category_slug):
+
     template = 'blog/category.html'
-
-    category_posts = []
-
-    for post in posts:
-        if post['category'] == category_slug:
-            category_posts.append(post)
     context = {
-        'posts': category_posts,
         'category_slug': category_slug
     }
     return render(request, template, context)
